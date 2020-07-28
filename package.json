@@ -1,0 +1,29 @@
+{
+  "name": "gem-puzzle",
+  "version": "1.0.0",
+  "description": "Simple puzzle game",
+  "main": "script.js",
+  "directories": {
+    "test": "mocha"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dyushkin93/gem-puzzle.git"
+  },
+  "keywords": [
+    "puzzle",
+    "game",
+    "js"
+  ],
+  "author": "Dmitriy Yushkin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dyushkin93/gem-puzzle/issues"
+  },
+  "homepage": "https://github.com/dyushkin93/gem-puzzle#readme"
+}
