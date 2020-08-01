@@ -51,6 +51,7 @@ h1 {
 
 .size-selector {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
 }
 
@@ -60,10 +61,11 @@ h1 {
 
 .size-selector ul {
   display: flex;
+  flex-wrap: wrap;
 }
 
 .size-selector li{
-  margin: 0 2px;
+  margin: 2px 2px;
   padding: 0 6px;
   background-color: #a9bcc6;
   color: white;
@@ -72,4 +74,32 @@ h1 {
 
 .size-selector li:hover {
   background-color: #b8e3ea;
+}
+
+.game-field {
+  height: 400px;
+  display: flex;
+  flex-wrap: wrap;
+  border: 1px solid #02334a;
+}
+
+.piece {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 1px solid white;
+  background-color: #c7aabc;
+  color: white;
+  flex-basis: 25%;
+  font-size: 36px;
+  user-select: none;
+}
+
+.piece:hover {
+  background-color: #a9bcc6;
+}
+
+.empty {
+  opacity: 0;
 }
