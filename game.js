@@ -2,12 +2,12 @@ import {create} from "./utils/create.js";
 
 export class GemPuzzle {
   constructor() {
-    this.score = 0;
+    this.steps = 0;
     this.fieldSize = 4;
     this.fieldWidth = 400;
     this.canvas = document.createElement("canvas")
-    this.canvas.width = `${this.fieldWidth}`;
-    this.canvas.height = `${this.fieldWidth}`;
+    this.canvas.width = this.fieldWidth;
+    this.canvas.height = this.fieldWidth;
     this.ctx = this.canvas.getContext("2d");
     this.pieceSize = this.fieldWidth / this.fieldSize;
     this.textPaddingSingleX = Math.round(this.pieceSize / 2.44);
@@ -23,27 +23,46 @@ export class GemPuzzle {
       8: "18"
     }
 
+    this.idList = [];
     this.pieceList = [];
+    this.winPosition = [];
     let idCounter = 1;
     let yCounter = 0;
     for (let r = 0; r < this.fieldSize; r++) {
       let xCounter = 0;
       this.pieceList.push([]);
+      this.winPosition.push([]);
       for (let c = 0; c < this.fieldSize; c++) {
         if (r === this.fieldSize -1 && c === this.fieldSize -1) {
+          this.winPosition[r].push(
+            {
+              id:"empty",
+              x: xCounter,
+              y: yCounter,
+            } 
+          )
           this.pieceList[r].push(
             {
               id:"empty",
               x: xCounter,
-              y: yCounter
+              y: yCounter,
+
             } 
           )
         } else {
+          this.idList.push(`${idCounter}`);
           this.pieceList[r].push(
             {
               id: `${idCounter}`,
               x: xCounter,
-              y: yCounter
+              y: yCounter,
+            } 
+          )
+          this.winPosition[r].push(
+            {
+              id: `${idCounter}`,
+              x: xCounter,
+              y: yCounter,
             } 
           )
           idCounter++;
@@ -52,13 +71,40 @@ export class GemPuzzle {
       }
       yCounter += this.pieceSize;
     }
-    this.winPosition = this.pieceList;
   }
   timer() {
-
+    let startTime = new Date();
+    this.time = setInterval(e => {
+      let currentTime = new Date();
+      let timePassed = currentTime - startTime;
+      let hoursPassed = Math.floor(timePassed / (1000 * 60 * 60)) 
+      let minutesPassed = Math.floor(timePassed / (1000 * 60)) - hoursPassed * 60;
+      let secondsPassed = Math.floor(timePassed / 1000) - minutesPassed * 60;
+      if (hoursPassed > 0) {
+        this.timeString = `${hoursPassed}:${("0" + minutesPassed).slice(-2)}:${("0" + secondsPassed).slice(-2)}`
+        document.querySelector("#timer").innerHTML = this.timeString
+      } else {
+        this.timeString = `${("0" + minutesPassed).slice(-2)}:${("0" + secondsPassed).slice(-2)}`
+        document.querySelector("#timer").innerHTML = this.timeString
+      }
+    }, 1000);
   }
   start() {
+    this.canvas.onclick = e => {
+      let x = e.clientX - this.canvas.getBoundingClientRect().x;
+      let y = e.clientY - this.canvas.getBoundingClientRect().y;
+      for (let r = 0; r < this.fieldSize; r++) {
+        for (let c = 0; c < this.fieldSize; c++) {
+          if ((x > this.pieceList[r][c].x && x < (this.pieceList[r][c].x + this.pieceSize)) && (y > this.pieceList[r][c].y && y < (this.pieceList[r][c].y + this.pieceSize))) {
+            this.move(r, c,);
+          }
+        }
+      }
+    }
 
+    this.shufflePieces();
+
+    this.timer();
   }
 
   move(r, c) {
@@ -69,7 +115,7 @@ export class GemPuzzle {
       let distanceX = emptyPiece.x - this.pieceList[r][c].x;
       let distanceY = emptyPiece.y - this.pieceList[r][c].y;
       let id = this.pieceList[r][c].id;
-      this.changePos(r, c, emptyPiece);
+      this.doStep(r, c, emptyPiece);
       let animate = (duration) => {
         let start = performance.now();
         requestAnimationFrame(animate = (time) => {
@@ -103,7 +149,7 @@ export class GemPuzzle {
         for (let j = 0; j < this.fieldSize; j++) {
           //find the empty piece on the field
           if (this.pieceList[i][j].id === "empty") {
-            //check if the piece stands close to the clicked piece - the difference only of one index must be equal 1
+            //check if the piece stands close to the clicked piece - the difference only of one index must be equal 1 and other's must be 0
             if (((Math.abs(i - r) === 0) && (Math.abs(j - c) === 1)) || ((Math.abs(i - r) === 1) && (Math.abs(j - c) === 0))) {
               emptyPiece = this.pieceList[i][j];
               emptyPiece.r = i;
@@ -112,16 +158,19 @@ export class GemPuzzle {
           }
         }
       }
-
-
     return emptyPiece;
   }
 
-  changePos(r, c, emptyPiece) {
+  doStep(r, c, emptyPiece) {
     if (emptyPiece) {
       let bubblePieceId = this.pieceList[r][c].id;
       this.pieceList[r][c].id = "empty";
       this.pieceList[emptyPiece.r][emptyPiece.c].id = bubblePieceId;
+      this.steps += 1;
+      document.querySelector("#step").innerHTML = this.steps;
+      this.checkWin();
+      localStorage.setItem("pieceList", this.pieceList);
+      localStorage.setItem("steps", this.steps);
     }
   }
 
@@ -150,23 +199,65 @@ export class GemPuzzle {
     }
   }
 
+  shufflePieces() {
+    this.idList.sort(() => Math.random() - 0.5);
+    this.idList.push("empty");
+    let index = 0;
+    for (let r = 0; r < this.fieldSize; r++) {
+      for (let c = 0; c < this.fieldSize; c++) {
+        this.pieceList[r][c].id = this.idList[index];
+        this.draw(this.pieceList[r][c].id, this.pieceList[r][c].x, this.pieceList[r][c].y)
+        index++;
+      }
+    }
+  }
+
+  checkWin() {
+    let win = true;
+    for (let r = 0; r < this.pieceList.length; r++) {
+      for (let c = 0; c < this.pieceList.length; c++) {
+        if (this.pieceList[r][c].id != this.winPosition[r][c].id) {
+          win = false;
+          break;
+        }
+      }
+    }
+    if (win === true) {
+      this.winModal.classList.add("modal-active")
+      clearInterval(this.time)
+      document.querySelector("#win-steps").innerHTML = this.steps;
+      document.querySelector("#win-time").innerHTML = this.timeString;
+      localStorage.removeItem("steps");
+      localStorage.removeItem("time");
+    }
+  }
+
   build(elemForAppend) {
     let gameWrapper = document.createDocumentFragment();
     let header = document.createElement("header");
     header.innerHTML = ("<h1>Gem Puzzle</h1>");
     let navBar = document.createElement("nav");
     let actionButtons = create("ul", "<li class=\"start\">Shuffle and start</li><li class=\"score\">High Score</li>","game-options")
-    let stats = create("ul", `<li class=\"steps\">Steps: <span>${5}</span></li><li class=\"time\">Time: <span>${10}</span></li>`, "game-stats");
+    let stats = create("ul", `<li class=\"steps\">Steps: <span id="step">${this.steps}</span></li><li class=\"time\">Time: <span id="timer">00:00</span></li>`, "game-stats");
     navBar.append(actionButtons, stats);
     header.append(navBar);
+
     let gameField = create("div", undefined, "game-field");
     gameField.append(this.canvas);
     let footer = document.createElement("footer");
     let size = create("div", `Field size: ${"4x4"}`, "size");
     let sizeSelect = create("div", `<p>Change field size:<ul><li>${"3x3"}</li><li>${"3x3"}</li><li>${"3x3"}</li><li>${"3x3"}</li><li>${"3x3"}</li><li>${"3x3"}</li><li>${"3x3"}</li><ul/></p>`, "size-selector")
+
+    this.winModal = create("div", "<h2>You win!</h2><p>Steps:<span id=\"win-steps\"></span>, time: <span id=\"win-time\"></span></p>", "win-modal")
+    gameField.append(this.winModal);
+
     footer.append(size, sizeSelect);
     gameWrapper.append(header, gameField, footer);
+    
     elemForAppend.append(gameWrapper);
+
+    
+    
   }
 
   init(elemForAppend) {
@@ -178,16 +269,8 @@ export class GemPuzzle {
 
     this.build(elemForAppend);
 
-    this.canvas.onclick = e => {
-      let x = e.clientX - this.canvas.getBoundingClientRect().x;
-      let y = e.clientY - this.canvas.getBoundingClientRect().y;
-      for (let r = 0; r < this.fieldSize; r++) {
-        for (let c = 0; c < this.fieldSize; c++) {
-          if ((x > this.pieceList[r][c].x && x < (this.pieceList[r][c].x + this.pieceSize)) && (y > this.pieceList[r][c].y && y < (this.pieceList[r][c].y + this.pieceSize))) {
-            this.move(r, c,);
-          }
-        }
-      }
+    document.querySelector(".start").onclick = e => {
+      this.start();
     }
   }
 }

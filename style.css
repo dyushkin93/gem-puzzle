@@ -36,8 +36,16 @@ h1 {
   cursor: pointer;
 }
 
+.score {
+  display: none;
+}
+
 .game-options li:hover {
   background-color: #b8e3ea;
+}
+
+.game-options li:active {
+  background-color: #a9bcc6;
 }
 
 .game-stats {
@@ -102,4 +110,41 @@ h1 {
 
 .empty {
   opacity: 0;
+}
+
+.win-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background-color: rgba(255, 255, 255, 0.5);
+  visibility: hidden;
+  opacity: 0;
+}
+
+.modal-active {
+  visibility: visible;
+  opacity: 1;
+}
+
+.modal-active {
+  transition: opacity 0.5s;
+}
+
+.win-modal h2 {
+  color: #513e5c;
+  padding: 10px;
+  font-size: 32px;
+}
+
+.win-modal p {
+  color: #513e5c;
+  font-size: 24px;
+}
+
+footer {
+  display: none;
 }
