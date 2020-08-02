@@ -13,7 +13,7 @@ export class GemPuzzle {
     this.textPaddingSingleX = Math.round(this.pieceSize / 2.44);
     this.textPaddingBothY = Math.round(this.pieceSize / 1.61);
     this.textPaddingDoubleX = Math.round(this.pieceSize / 3.03);
-
+    this.timeString = "00:00";
     this.fontSizes = {
       3: "36",
       4: "36",
@@ -73,6 +73,7 @@ export class GemPuzzle {
     }
   }
   timer() {
+    document.querySelector("#timer").innerHTML = this.timeString
     let startTime = new Date();
     this.time = setInterval(e => {
       let currentTime = new Date();
@@ -103,7 +104,9 @@ export class GemPuzzle {
     }
 
     this.shufflePieces();
+    this.clear(300, 300)
 
+    clearInterval(this.time)
     this.timer();
   }
 
@@ -200,12 +203,13 @@ export class GemPuzzle {
   }
 
   shufflePieces() {
-    this.idList.sort(() => Math.random() - 0.5);
-    this.idList.push("empty");
+    let arr = this.idList.slice();
+    arr.sort(() => Math.random() - 0.5);
+    arr.push("empty");
     let index = 0;
     for (let r = 0; r < this.fieldSize; r++) {
       for (let c = 0; c < this.fieldSize; c++) {
-        this.pieceList[r][c].id = this.idList[index];
+        this.pieceList[r][c].id = arr[index];
         this.draw(this.pieceList[r][c].id, this.pieceList[r][c].x, this.pieceList[r][c].y)
         index++;
       }
