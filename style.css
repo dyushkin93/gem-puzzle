@@ -13,6 +13,7 @@ header,
 footer {
   width: 400px;
   margin: auto;
+  padding: 0 10px;
   text-align: center;
 }
 
@@ -24,16 +25,17 @@ h1 {
 .game-options {
   display: flex;
   justify-content: space-between;
-  height: 30px;
+  height: 50px;
 }
 
 .game-options li {
-  line-height: 24px;
+  line-height: 45px;
   margin: 2px;
   flex-grow: 1;
   background-color: #a9bcc6;
   color: white;
   cursor: pointer;
+  font-size: 24px;
 }
 
 .score {
@@ -88,6 +90,9 @@ h1 {
   height: 400px;
   display: flex;
   flex-wrap: wrap;
+}
+
+canvas {
   border: 1px solid #02334a;
 }
 
